@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include "vlc.h"
 
 int main()
 {

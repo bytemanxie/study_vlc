@@ -7,6 +7,7 @@
 #include "VideoClient.h"
 #include "VideoClientDlg.h"
 #include "afxdialogex.h"
+#include "VideoClientController.h"		
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -64,10 +65,25 @@ BOOL CVideoClientDlg::OnInitDialog()
 	m_volume.SetRange(0, 100);
 	m_pos.SetRange(0, 100);
 	m_pos.SetPos(0);
+	// Set the play address
+	CString url = _T("file:///D:\\edoyun\\study_vlc\\study_vlc\\VideoClient\\123.mp4");
+	m_url.SetWindowTextW(url);
+
+	
+	
 	//音量条每隔10触发一次mark
 	m_volume.SetTicFreq(10);
 	//将IDC_STATIC_VOLUME设置为100%
 	SetDlgItemText(IDC_STATIC_VOLUME, _T("100%"));
+	//将IDC_STATIC_TIME设置为0%
+	SetDlgItemText(IDC_STATIC_TIME, _T("0%"));
+	//设置video为窗口
+	m_pController->SetWnd(m_video.GetSafeHwnd());
+	//视频铺满整个窗口
+	m_video.ModifyStyle(0, WS_MAXIMIZEBOX | WS_SYSMENU | WS_MINIMIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+	m_video.SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+	m_video.ShowWindow(SW_SHOW);
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -124,7 +140,15 @@ void CVideoClientDlg::OnTimer(UINT_PTR nIDEvent)
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	if (nIDEvent == 0)
 	{
-
+		float pos = m_pController->VideoCtrl(VLC_GET_POSITION);
+		//将进度条的值设置到IDC_STATIC_TIME
+		if (pos != -1)
+		{
+			CString str;
+			str.Format(_T("%d%%"), (int)(pos * 100));
+			SetDlgItemText(IDC_STATIC_TIME, str);
+			m_pos.SetPos((int)(pos * 100));
+		}
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }
@@ -142,25 +166,25 @@ void CVideoClientDlg::OnDestroy()
 void CVideoClientDlg::OnBnClickedButtonPlay()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
-	m_status = false;
 	if (m_status == false)
 	{
 		//播放视频
-		//1.获取视频地址
 		CString url;
 		m_url.GetWindowTextW(url);
-		//2.播放视频
-		m_video.SetWindowTextW(url);
+		//url转为string类型
+		std::string urlStr = CW2A(url.GetString());
+		m_pController->SetMedia(urlStr);
+
 		m_btmPlay.SetWindowTextW(L"暂停");
 		m_status = true;
+		m_pController->VideoCtrl(VLCPLAY);
 	}
 	else
 	{
 		//暂停视频
-		m_video.SetWindowTextW(L"");
 		m_btmPlay.SetWindowTextW(L"播放");
 		m_status = false;
+		m_pController->VideoCtrl(VLCPAUSE);
 	}
 }
 
@@ -169,6 +193,7 @@ void CVideoClientDlg::OnBnClickedButtonStop()
 	// TODO: 在此添加控件通知处理程序代码
 	m_btmPlay.SetWindowTextW(L"播放");
 	m_status = false;
+	m_pController->VideoCtrl(VLCSTOP);
 }
 
 
@@ -204,6 +229,7 @@ void CVideoClientDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	CString str;
 	str.Format(_T("%d%%"), pos);
 	SetDlgItemText(IDC_STATIC_TIME, str);
+	m_pController->SetPosition((float)pos / 100);
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 }
@@ -219,5 +245,6 @@ void CVideoClientDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	CString str;
 	str.Format(_T("%d%%"), 100 - volume);
 	SetDlgItemText(IDC_STATIC_VOLUME, str);
+	m_pController->SetVolume(100 - volume);
 	CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
 }

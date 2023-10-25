@@ -43,11 +43,18 @@ public:
 	float GetPosition();
 	int SetPosition(float pos);
 	VlcSize GetVideoSize();
+#ifdef WIN32
 	int SetHwnd(void* hwnd);
+#endif // WIN32
 
 protected:
 	libvlc_instance_t* m_vlcInstance;
 	libvlc_media_player_t* m_vlcMediaPlayer;
 	libvlc_media_t* m_vlcMedia;
+	std::string m_url;
+#ifdef WIN32
+	HWND m_hwnd;
+#endif // 
+
 };
 

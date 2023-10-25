@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+class VideoClientController;
 
 // CVideoClientDlg 对话框
 class CVideoClientDlg : public CDialogEx
@@ -46,4 +46,5 @@ public:
 	afx_msg void OnTRBNThumbPosChangingSliderVolume(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	VideoClientController* m_pController;
 };

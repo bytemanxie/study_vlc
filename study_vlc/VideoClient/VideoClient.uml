@@ -118,8 +118,8 @@
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
 <XPD:ATTR name="Left" type="integer">704</XPD:ATTR>
 <XPD:ATTR name="Top" type="integer">260</XPD:ATTR>
-<XPD:ATTR name="Width" type="integer">167</XPD:ATTR>
-<XPD:ATTR name="Height" type="integer">134</XPD:ATTR>
+<XPD:ATTR name="Width" type="integer">198</XPD:ATTR>
+<XPD:ATTR name="Height" type="integer">147</XPD:ATTR>
 <XPD:REF name="Model">buxlExIho0qQF59X45GJKAAA</XPD:REF>
 <XPD:OBJ name="NameCompartment" type="UMLNameCompartmentView" guid="dzHZeo4SSkSv5dzjkfxYQgAA">
 <XPD:OBJ name="NameLabel" type="LabelView" guid="QDr0IO7XO0qvrABIDi/TZwAA">
@@ -204,7 +204,7 @@
 <XPD:OBJ name="OwnedViews[6]" type="UMLDependencyView" guid="Lg9DiuXRe0KrgkBOEpB3pQAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Points" type="Points">599,335;704,330</XPD:ATTR>
+<XPD:ATTR name="Points" type="Points">599,337;704,335</XPD:ATTR>
 <XPD:REF name="Model">rlQd1HITkkeFv2LMCGRkKQAA</XPD:REF>
 <XPD:REF name="Head">xR4/d8speUiPotjcW8+y0wAA</XPD:REF>
 <XPD:REF name="Tail">UiW3U+jldEmHwcNmrpehmAAA</XPD:REF>
@@ -357,8 +357,9 @@
 <XPD:ATTR name="TypeExpression" type="string">int</XPD:ATTR>
 <XPD:REF name="BehavioralFeature">Q4cy1n+9K0+UyRbpDM/vAQAA</XPD:REF>
 </XPD:OBJ>
-<XPD:ATTR name="#CallActions" type="integer">1</XPD:ATTR>
+<XPD:ATTR name="#CallActions" type="integer">2</XPD:ATTR>
 <XPD:REF name="CallActions[0]">5iw7EcrC0E+7mDWWIUCb0QAA</XPD:REF>
+<XPD:REF name="CallActions[1]">qyRrBqATVkO6zvewP3UyMQAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="Operations[3]" type="UMLOperation" guid="ogN9iS0+r0mxA7DmbHrMdgAA">
 <XPD:ATTR name="Name" type="string">setmedia</XPD:ATTR>
@@ -713,6 +714,12 @@
 </XPD:OBJ>
 <XPD:ATTR name="#TypedFeatures" type="integer">1</XPD:ATTR>
 <XPD:REF name="TypedFeatures[0]">ag+/aUbL6UGl89UKiQiOAAAA</XPD:REF>
+<XPD:ATTR name="#Attributes" type="integer">1</XPD:ATTR>
+<XPD:OBJ name="Attributes[0]" type="UMLAttribute" guid="hYWDj18AG02aJSK4uxMCdAAA">
+<XPD:ATTR name="Name" type="string">m_pController</XPD:ATTR>
+<XPD:ATTR name="TypeExpression" type="string">VideoClientController*</XPD:ATTR>
+<XPD:REF name="Owner">buxlExIho0qQF59X45GJKAAA</XPD:REF>
+</XPD:OBJ>
 <XPD:ATTR name="#Instances" type="integer">1</XPD:ATTR>
 <XPD:REF name="Instances[0]">fzugyVni70Csfz6T06iViwAA</XPD:REF>
 </XPD:OBJ>
@@ -1502,9 +1509,9 @@
 <XPD:REF name="Head">alITEZrpnESI8qnsn6xvtAAA</XPD:REF>
 <XPD:REF name="Tail">Er9oM/6Zy0y0jvHi59IEpgAA</XPD:REF>
 <XPD:OBJ name="NameLabel" type="EdgeLabelView" guid="ypaU1VcYzkKAjWcfiI1iNgAA">
-<XPD:ATTR name="Alpha" type="real">1.5707963267949</XPD:ATTR>
-<XPD:ATTR name="Distance" type="real">10</XPD:ATTR>
-<XPD:ATTR name="Text" type="string">18</XPD:ATTR>
+<XPD:ATTR name="Alpha" type="real">-1.03037829711385</XPD:ATTR>
+<XPD:ATTR name="Distance" type="real">5.8309518948453</XPD:ATTR>
+<XPD:ATTR name="Text" type="string">18 : videoctrl()</XPD:ATTR>
 <XPD:REF name="Model">Ns5g4m0wF0qmoMdHQDvL1gAA</XPD:REF>
 <XPD:REF name="HostEdge">7sCt/nWKAkm8ZGgLfSFW+gAA</XPD:REF>
 </XPD:OBJ>
@@ -2350,6 +2357,7 @@
 <XPD:REF name="Receiver">rIn6FuVIsk6w0bOaA4Ud6gAA</XPD:REF>
 <XPD:OBJ name="Action" type="UMLCallAction" guid="qyRrBqATVkO6zvewP3UyMQAA">
 <XPD:REF name="Stimulus">Ns5g4m0wF0qmoMdHQDvL1gAA</XPD:REF>
+<XPD:REF name="Operation">Q4cy1n+9K0+UyRbpDM/vAQAA</XPD:REF>
 </XPD:OBJ>
 <XPD:REF name="InteractionInstanceSet">4BMd6yto2kS8Ultazg67AQAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">4</XPD:ATTR>

@@ -91,3 +91,4 @@ VlcSize VideoClientController::GetMediaInfo()
 	return m_vlc.GetVideoSize();
 	return VlcSize();
 }
+ 

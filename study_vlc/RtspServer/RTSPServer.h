@@ -49,7 +49,7 @@ public:
     int Ivoke();
     //关闭服务器
     void Stop();
-    
+
 protected:
     int ThreadWorker();
     RTSPRequest AnlysisRequest(const std::string& request);
@@ -63,4 +63,5 @@ private:
     EdoyunThread m_threadMain;
     EdoyunThreadPool m_threadPool;
     std::map<std::string, RTSPSession> m_mapSession;
+    static SocketIniter initer;
 };

@@ -35,11 +35,9 @@ public:
 		}
 		return -1;
 	}
-
 	bool IsValid() const {
 		return (thiz != NULL) && (func != NULL);
 	}
-
 private:
 	ThreadFuncBase* thiz;
 	FUNCTYPE func;
@@ -76,56 +74,56 @@ public:
 	bool Stop() {
 		if (m_bStatus == false)return true;
 		m_bStatus = false;
-		bool ret = WaitForSingleObject(m_hThread, INFINITE) == WAIT_OBJECT_0;
+		DWORD ret = WaitForSingleObject(m_hThread, 1000);
+		if (ret == WAIT_TIMEOUT) {
+			TerminateThread(m_hThread, -1);
+		}
 		UpdateWorker();
-		return ret;
+		return ret == WAIT_OBJECT_0;
 	}
 
 	void UpdateWorker(const ::ThreadWorker& worker = ::ThreadWorker()) {
-		if (m_worker.load() != NULL && m_worker.load() != &worker) {
+		if (m_worker.load() != NULL && (m_worker.load() != &worker)) {
 			::ThreadWorker* pWorker = m_worker.load();
+			TRACE("delete pWorker = %08X m_worker = %08X\r\n", pWorker, m_worker.load());
 			m_worker.store(NULL);
 			delete pWorker;
 		}
+		if (m_worker.load() == &worker)return;
 		if (!worker.IsValid()) {
 			m_worker.store(NULL);
 			return;
 		}
-		m_worker.store(new ::ThreadWorker(worker));
+		::ThreadWorker* pWorker = new ::ThreadWorker(worker);
+		TRACE("new pWorker = %08X m_worker = %08X\r\n", pWorker, m_worker.load());
+		m_worker.store(pWorker);
 	}
 
-	//true表示空闲 false表示已经分配了工作
+	//true表示空闲 false表示已经分配了工作  有麦吗 怎么连麦   你连下 我有
 	bool IsIdle() {
-		if (m_worker == NULL)return true;
+		if (m_worker.load() == NULL)return true;
 		return !m_worker.load()->IsValid();
 	}
-
 private:
-
 	void ThreadWorker() {
 		while (m_bStatus) {
-			if (m_worker == NULL) 
-			{
+			if (m_worker.load() == NULL) {
 				Sleep(1);
 				continue;
 			}
-
 			::ThreadWorker worker = *m_worker.load();
-			if (worker.IsValid()) 
-			{
-				int ret = worker();
-				if (ret != 0) 
-				{
-					// CString str;
-					// str.Format(_T("thread found warning code %d\r\n"), ret);
-					// OutputDebugString(str);
-				}
-
-				if (ret < 0) 
-				{
-					::ThreadWorker* pWorker = m_worker.load();
-					m_worker.store(NULL);
-					delete pWorker;
+			if (worker.IsValid()) {
+				if (WaitForSingleObject(m_hThread, 0) == WAIT_TIMEOUT) {
+					int ret = worker();
+					if (ret != 0) {
+						
+						TRACE("thread found warning code %d  %s  %d\r\n", ret, __FUNCTION__, __LINE__);
+					}
+					if (ret < 0) {
+						::ThreadWorker* pWorker = m_worker.load();
+						m_worker.store(NULL);
+						delete pWorker;
+					}
 				}
 			}
 			else {
@@ -133,7 +131,6 @@ private:
 			}
 		}
 	}
-
 	static void ThreadEntry(void* arg) {
 		EdoyunThread* thiz = (EdoyunThread*)arg;
 		if (thiz) {
@@ -141,7 +138,6 @@ private:
 		}
 		_endthread();
 	}
-
 private:
 	HANDLE m_hThread;
 	bool m_bStatus;//false 表示线程将要关闭  true 表示线程正在运行
@@ -159,13 +155,10 @@ public:
 	EdoyunThreadPool() {}
 	~EdoyunThreadPool() {
 		Stop();
-		for (size_t i = 0; i < m_threads.size(); i++)
-		{
-			EdoyunThread* pThread = m_threads[i];
+		for (size_t i = 0; i < m_threads.size(); i++) {
+			delete m_threads[i];
 			m_threads[i] = NULL;
-			delete pThread;
 		}
-
 		m_threads.clear();
 	}
 	bool Invoke() {
@@ -194,7 +187,7 @@ public:
 		int index = -1;
 		m_lock.lock();
 		for (size_t i = 0; i < m_threads.size(); i++) {
-			if (m_threads[i] != NULL && m_threads[i]->IsIdle()) {
+			if (m_threads[i]->IsIdle()) {
 				m_threads[i]->UpdateWorker(worker);
 				index = i;
 				break;

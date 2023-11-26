@@ -1,86 +1,326 @@
 #pragma once
 #include <WinSock2.h>
 #include <memory>
-// warning(disable:6031)
+#include <string>
+
 //#pragma comment(lib, "ws2_32.lib")
 
-class CSocket
+class EBuffer :public std::string
 {
-    public:
-    CSocket(bool isTcp = true)
+public:
+	EBuffer(const char* str)
+	{
+		resize(strlen(str));
+		memcpy((void*)c_str(), str, size());
+	}
+
+	EBuffer(size_t size = 0) : std::string()
+	{
+		if (size > 0)
+		{
+			resize(size);
+			memset(*this, 0, this->size());
+		}
+
+	}
+
+	EBuffer(void* buffer, size_t size): std::string()
+	{
+		resize(size);
+		memcpy((void*)c_str(), buffer, size);
+	}
+
+    // //等于号重载，使EBuffer可以直接赋值为std::string
+    // EBuffer& operator=(const std::string& str)
+    // {
+    //     std::string::operator=(str);
+    //     return *this;
+    // }
+
+	//重载==运算符，使EBuffer可以直接与const char*比较
+	bool operator==(const char* str) const
+	{
+		return strcmp(c_str(), str) == 0;
+	}
+
+    operator std::string()
     {
-        if (isTcp)
-        {
-            m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        }
-        else
-        {
-            m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        }
+        return *this;
+    }  
+
+	~EBuffer()
+	{
+		std::string::~basic_string();
+	}
+
+	operator char* ()
+	{
+		return (char*)c_str();
+	}
+
+	operator const char* () const
+	{
+		return c_str();
+	}
+
+	operator BYTE* () const
+	{
+		return (BYTE*)c_str();
+	}
+
+	operator void* () const
+	{
+		return (void*)c_str();
+	}
+
+    //常量EBuffer转换为char*
+    operator char* () const
+    {
+        return (char*)c_str();
     }
 
-    CSocket(CSocket& s)
-    {
-        m_socket = s;
-    } 
 
-    void Close()
+	void Update(void* buffer, size_t size)
+	{
+		resize(size);
+		memcpy((void*)c_str(), buffer, size);
+	}
+
+    void Zero()
     {
-        if(m_socket != INVALID_SOCKET)
-        {   
-            SOCKET s = m_socket;
-            m_socket = INVALID_SOCKET;
-            closesocket(s);
-        }
+        memset(*this, 0, size());
+    
     }
 
-    operator SOCKET()
+    EBuffer& operator << (const EBuffer& buffer)
     {
-        return m_socket;
+        append(buffer);
+        return *this;
     }
 
-    ~CSocket()
+    EBuffer& operator << (const std::string& buffer)
     {
-        Close();
+        append(buffer);
+        return *this;
     }
-    private:
-        SOCKET m_socket;
+
+    EBuffer& operator << (const char* buffer)
+    {
+        append(buffer);
+        return *this;
+    }
+
+    EBuffer& operator << (const int& buffer)
+    {
+        char str[16] = {0};
+        sprintf(str, "%d", buffer);
+        append(str);
+        return *this;
+    }
+
+    //重载>>运算符，使EBuffer输出到short
+    const EBuffer& operator>>(short& value) const
+    {
+        value = (short)atoi(c_str());
+        return *this;
+    }
+
+    //重载>>运算符，使EBuffer输出到int
+    const EBuffer& operator>>(int& value) const
+    {
+        value = atoi(c_str());
+        return *this;
+    }
+};
+
+class Socket
+{
+public:
+	//nType 0 TCP 1 UDP
+	Socket(bool bIsTcp = true) {
+		m_sock = INVALID_SOCKET;
+		if (bIsTcp) {
+			m_sock = socket(PF_INET, SOCK_STREAM, 0);
+		}
+		else {
+			m_sock = socket(PF_INET, SOCK_DGRAM, 0);
+		}
+	}
+	Socket(SOCKET s) {
+		m_sock = s;
+	}
+	void Close() {
+		if (m_sock != INVALID_SOCKET) {
+			SOCKET temp = m_sock;
+			m_sock = INVALID_SOCKET;
+			closesocket(temp);
+		}
+	}
+	operator SOCKET() {
+		return m_sock;
+	}
+	~Socket() {
+		Close();
+	}
+private:
+	SOCKET m_sock;
+};
+class EAddress
+{
+public:
+	EAddress() {
+		m_port = -1;
+		memset(&m_addr, 0, sizeof(m_addr));
+		m_addr.sin_family = AF_INET;
+	}
+
+	EAddress(const std::string& ip, short port) {
+		m_ip = ip;
+		m_port = port;
+		m_addr.sin_port = htons(port);
+		m_addr.sin_addr.s_addr = inet_addr(ip.c_str());
+	}
+
+	EAddress(const EAddress& addr) {
+		m_ip = addr.m_ip;
+		m_port = addr.m_port;
+		memcpy(&m_addr, &addr.m_addr, sizeof(sockaddr_in));
+	}
+
+	EAddress& operator=(const EAddress& addr) {
+		if (this != &addr) {
+			m_ip = addr.m_ip;
+			m_port = addr.m_port;
+			memcpy(&m_addr, &addr.m_addr, sizeof(sockaddr_in));
+		}
+		return *this;
+	}
+
+	EAddress& operator=(short port) {
+		m_port = (unsigned short)port;
+		m_addr.sin_port = htons(port);
+		return *this;
+	}
+
+	~EAddress() {}
+
+	void Update(const std::string& ip, short port) {
+		m_ip = ip;
+		m_port = port;
+		m_addr.sin_port = htons(port);
+		m_addr.sin_addr.s_addr = inet_addr(ip.c_str());
+	}
+
+	operator const sockaddr* () const {
+		return (sockaddr*)&m_addr;
+	}
+
+	operator sockaddr* () {
+		return (sockaddr*)&m_addr;
+	}
+
+	operator sockaddr_in* () {
+		return &m_addr;
+	}
+
+	int size()const { return sizeof(sockaddr_in); }
+
+	const std::string Ip() const {
+		return m_ip;
+	}
+
+	unsigned short Port()const {
+		return m_port;
+	}
+
+	void Fresh() {
+		m_ip = inet_ntoa(m_addr.sin_addr);
+	}
+private:
+	std::string m_ip;
+	unsigned short m_port;
+	sockaddr_in m_addr;
 };
 
 class ESocket
 {
-    public:
-    ESocket(bool isTcp = true): m_socket(new CSocket(isTcp)) {}
+public:
+	ESocket(bool isTcp = true)
+		:m_socket(new Socket(isTcp)),
+		m_istcp(isTcp)
+	{}
 
-    //拷贝构造函数
-    ESocket(const ESocket& s)
-    {
-        m_socket.reset(new CSocket(*s.m_socket));
-    }
+	ESocket(const ESocket& sock)
+		:m_socket(sock.m_socket),
+		m_istcp(sock.m_istcp)
+	{}
 
-    ~ESocket()
-    {
-        m_socket.reset();
-    }
+	ESocket(SOCKET sock, bool isTcp) :
+		m_socket(new Socket(sock)),
+		m_istcp(isTcp)
+	{}
 
-    //赋值运算符
-    ESocket& operator=(const ESocket& s)
-    {
-        if (this == &s)
-        {
-            return *this;
-        }
-        m_socket.reset(new CSocket(*s.m_socket));
-        return *this;
-    }
+	ESocket& operator=(const ESocket& sock) {
+		if (this != &sock)m_socket = sock.m_socket;
+		return *this;
+	}
 
-    operator SOCKET()
-    {
-        return *m_socket;
-    }
+	~ESocket() {
+		m_socket.reset();
+	}
 
-    private:
-        std::shared_ptr<CSocket> m_socket;
+	operator SOCKET() const {
+		return *m_socket;
+	}
+
+	int Bind(const EAddress& addr) {
+		if (m_socket == nullptr) {
+			m_socket.reset(new Socket(m_istcp));
+		}
+		return bind(*m_socket, addr, addr.size());
+	}
+
+	int Listen(int backlog = 5) {
+		return listen(*m_socket, backlog);
+	}
+
+	ESocket Accept(EAddress& addr) {
+		int len = addr.size();
+		if (m_socket == nullptr)return ESocket(INVALID_SOCKET, true);
+		SOCKET server = *m_socket;
+		if (server == INVALID_SOCKET)return ESocket(INVALID_SOCKET, true);
+		SOCKET s = accept(server, addr, &len);
+		return ESocket(s, m_istcp);
+	}
+
+	int Connect(const EAddress& addr) {
+		return connect(*m_socket, addr, addr.size());
+	}
+
+	int Recv(EBuffer& buffer) {
+		return recv(*m_socket, buffer, buffer.size(), 0);
+	}
+
+	int Send(const EBuffer& buffer) {
+		printf("send: \r\n%s\r\n", (char*)buffer);
+		int index = 0;
+		char* pData = buffer;
+		while (index < (int)buffer.size()) {
+			int ret = send(*m_socket, pData + index, buffer.size() - index, 0);
+			if (ret < 0)return ret;
+			if (ret == 0)break;
+			index += ret;
+		}
+		return index;
+	}
+
+	void Close() {
+		m_socket.reset();
+	}
+
+private:
+	std::shared_ptr<Socket> m_socket;
+	bool m_istcp;
 };
 
 class SocketIniter

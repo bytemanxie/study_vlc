@@ -130,13 +130,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CSocket.cpp" />
+    <ClCompile Include="MediaFile.cpp" />
+    <ClCompile Include="RTPHelper.cpp" />
     <ClCompile Include="RTSPServer.cpp" />
     <ClCompile Include="VideoRtspServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="base.h" />
     <ClInclude Include="CEdoyunQueue.h" />
     <ClInclude Include="CSocket.h" />
     <ClInclude Include="EdoyunThread.h" />
+    <ClInclude Include="MediaFile.h" />
+    <ClInclude Include="RTPHelper.h" />
     <ClInclude Include="RTSPServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

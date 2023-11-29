@@ -1,45 +1,46 @@
 #pragma once
 #include "base.h"
-
+#include "CSocket.h"
 class RTPHeader
 {
+public://见RTP header定义图
+	unsigned short csrccount : 4;
+	unsigned short extension : 1;
+	unsigned short padding : 1;
+	unsigned short version : 2;//位域
+	unsigned short pytype : 7;
+	unsigned short mark : 1;
+	unsigned short serial;
+	unsigned timestamp;
+	unsigned ssrc;
+	unsigned csrc[15];
 public:
-    
-    unsigned short extension : 1;
-    unsigned short csrcCount : 4;
-    unsigned short padding : 1;
-    unsigned short version : 2;
-    unsigned short payloadType : 7;
-    unsigned short marker : 1;
-    unsigned short serial;
-    unsigned timestamp;
-    unsigned ssrc;
-    unsigned csrc[15];
+	RTPHeader();
+	RTPHeader(const RTPHeader& header);
+	RTPHeader& operator=(const RTPHeader& header);
+	operator EBuffer();
+};
 
+class RTPFrame
+{
 public:
-    RTPHeader()
-    {
-        memset(this, 0, sizeof(RTPHeader));
-    }
-    ~RTPHeader()
-    {
-
-    }
-
-    operator EBuffer()
-    {
-        return EBuffer(this, sizeof(RTPHeader));
-    }
-
+	RTPHeader m_head;
+	EBuffer m_pyload;
+	operator EBuffer();
 };
 
 class RTPHelper
 {
 public:
-    RTPHelper(){}
-    ~RTPHelper(){}
+	RTPHelper() :timestamp(0), m_udp(false) {
+		m_udp.Bind(EAddress("0.0.0.0", (short)55000));
+	}
+	~RTPHelper() {}
+	int SendMediaFrame(RTPFrame& rtpframe, EBuffer& frame, const EAddress& client);
 private:
-    EBuffer m_head;
-    EBuffer m_payload;
+	int GetFrameSepSize(EBuffer& frame);
+	int SendFrame(const EBuffer& frame, const EAddress& client);
+	DWORD timestamp;
+	ESocket m_udp;
 };
 

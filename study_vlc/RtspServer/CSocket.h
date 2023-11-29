@@ -9,7 +9,8 @@ class Socket
 {
 public:
 	//nType 0 TCP 1 UDP
-	Socket(bool bIsTcp = true) {
+	Socket(bool bIsTcp = true) 
+	{
 		m_sock = INVALID_SOCKET;
 		if (bIsTcp) {
 			m_sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -18,25 +19,36 @@ public:
 			m_sock = socket(PF_INET, SOCK_DGRAM, 0);
 		}
 	}
-	Socket(SOCKET s) {
+
+	Socket(SOCKET s) 
+	{
 		m_sock = s;
 	}
-	void Close() {
+
+	void Close() 
+	{
 		if (m_sock != INVALID_SOCKET) {
 			SOCKET temp = m_sock;
 			m_sock = INVALID_SOCKET;
 			closesocket(temp);
 		}
 	}
-	operator SOCKET() {
+
+	operator SOCKET() 
+	{
 		return m_sock;
 	}
-	~Socket() {
+
+	~Socket() 
+	{
 		Close();
 	}
+
 private:
+
 	SOCKET m_sock;
 };
+
 class EAddress
 {
 public:
@@ -109,9 +121,10 @@ public:
 		m_ip = inet_ntoa(m_addr.sin_addr);
 	}
 private:
+	sockaddr_in m_addr;
 	std::string m_ip;
 	unsigned short m_port;
-	sockaddr_in m_addr;
+	
 };
 
 class ESocket

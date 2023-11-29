@@ -7,20 +7,20 @@
 
 int main()
 {
-    RTPHeader header;
-    memset(&header, 0, sizeof(header));
-    printf("header size:%d\r\n", sizeof(header));   
-    header.version = 2;
-    header.padding = 1;
-    header.extension = 1;
-    header.csrcCount = 5;
+    // RTPHeader header;
+    // memset(&header, 0, sizeof(header));
+    // printf("header size:%d\r\n", sizeof(header));   
+    // header.version = 2;
+    // header.padding = 1;
+    // header.extension = 1;
+    // header.csrccount = 5;
 
-    // RTSPServer server;
-    // server.Init();
-    // server.Ivoke();
-    // printf("press any key to stop\r\n");
-    // getchar();
-    // server.Stop();
+    RTSPServer server;
+    server.Init();
+    server.Invoke();
+    printf("press any key to stop\r\n");
+    getchar();
+    server.Stop();
     return 0;
 }
 
